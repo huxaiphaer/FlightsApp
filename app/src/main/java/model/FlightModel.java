@@ -73,19 +73,5 @@ public class FlightModel {
     }
 
 
-    public class Flight{
 
-        public    class Departure{
-
-            public  String AirportCode;
-
-            public String getAirportCode() {
-                return AirportCode;
-            }
-
-            public void setAirportCode(String airportCode) {
-                AirportCode = airportCode;
-            }
-        }
-    }
 }

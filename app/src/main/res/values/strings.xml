@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">FlightsApp</string>
+    <string name="app_name">Flights Schedule App</string>
     <string name="directflights">Direct Flights</string>
-    <string name="searchflights">Search Flights</string>
-    <string name="origin">Origin</string>
-    <string name="destination">Destination</string>
-    <string name="flightDate">Date</string>
+    <string name="searchflights">Search Flights Schedules </string>
+    <string name="origin">Select Origin</string>
+    <string name="destination">Select Destination</string>
+    <string name="flightDate">Choose Date</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

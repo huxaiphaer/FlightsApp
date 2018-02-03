@@ -2,6 +2,7 @@ package adapter;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import model.FlightModel;
+import ug.flights.huza.flightsapp.MapsActivity;
 import ug.flights.huza.flightsapp.R;
 
 /**
@@ -54,20 +56,21 @@ public class FlightAdapter  extends RecyclerView.Adapter<FlightAdapter.FlightHol
 
         holder.from_txt.setText(DepartureAirport);
         holder.to_txt.setText(ArrivalAirport);
-        holder.duration_txt.setText(Duration);
+        holder.duration_txt.setText(Duration.replace("PT","").replace("H"," Hours and ").replace("M"," Minutes"));
         holder.depature_txt.setText(DepartureTime);
         holder.arrival_txt.setText(ArrivalTime);
         holder.stops_txt.setText(Stops);
-        holder.dept_txt.setText(DepartureAirport);
-        holder.arr_txt.setText(ArrivalAirport);
+//        holder.dept_txt.setText(DepartureAirport);
+      //  holder.arr_txt.setText(ArrivalAirport);
 
 
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-              //  Intent i = new Intent(FlightAdapter.this.context, DetailsLocalLeader.class);
-              //  context.startActivity(i);
-
+                Intent i = new Intent(FlightAdapter.this.context, MapsActivity.class);
+                i.putExtra("fromLocation",DepartureAirport);
+                i.putExtra("toLocation",ArrivalAirport);
+                context.startActivity(i);
 
             }
         });
@@ -80,14 +83,14 @@ public class FlightAdapter  extends RecyclerView.Adapter<FlightAdapter.FlightHol
             return itemList.size();
     }
 
-    public class FlightHolder  extends RecyclerView.ViewHolder
+     static final class FlightHolder  extends RecyclerView.ViewHolder
     {
 
         public View root;
         public TextView from_txt,to_txt,duration_txt,
                 depature_txt,arrival_txt,stops_txt, dept_txt,arr_txt;
 
-        public FlightHolder(final View itemView) {
+        public FlightHolder(View itemView) {
             super(itemView);
             root = itemView;
 

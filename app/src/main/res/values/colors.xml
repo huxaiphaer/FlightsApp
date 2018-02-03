@@ -3,4 +3,6 @@
     <color name="colorPrimary">#b95b25</color>
     <color name="colorPrimaryDark">#f77b33</color>
     <color name="colorAccent">#e6864e</color>
+    <color name="spinnercolor">#ff9b60</color>
+    <color name="polylineColor">#257c38</color>
 </resources>

@@ -18,7 +18,9 @@
             android:layout_width="match_parent"
             android:layout_margin="6dp"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#f5f5f5"
+            android:elevation="4dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#dcdada"
            >
 
             <LinearLayout
@@ -35,10 +37,11 @@
                     android:textStyle="bold"
                     android:textSize="17sp"
                     />
-                <Spinner
+                <com.toptoche.searchablespinnerlibrary.SearchableSpinner
                     android:id="@+id/origin_sp"
                     android:layout_width="match_parent"
                     android:layout_margin="6dp"
+                    android:background="@color/spinnercolor"
                     android:layout_height="40dp"
                     android:spinnerMode="dialog" />
                 <TextView
@@ -51,10 +54,11 @@
                     android:textSize="17sp"
                     />
 
-                <Spinner
+                <com.toptoche.searchablespinnerlibrary.SearchableSpinner
                     android:id="@+id/destination_sp"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
+                    android:background="@color/spinnercolor"
                     android:layout_margin="6dp"
                     android:spinnerMode="dialog" />
 
@@ -76,24 +80,7 @@
                     android:ems="10"
                     android:focusable="false"
                     android:layout_height="wrap_content" />
-                <LinearLayout
-                    android:layout_width="match_parent"
 
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_margin="6dp"
-                        android:text="@string/directflights"
-                        android:textColor="#000"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                    <CheckBox
-                        android:id="@+id/directflight_chkbx"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="6dp" />
-                </LinearLayout>
 
                 <Button
                     android:layout_margin="6dp"
@@ -102,7 +89,7 @@
                     android:textColor="#fff"
                     android:onClick="onSearchFlights"
                     android:textStyle="bold"
-                    android:background="#e6864e"
+                    android:background="@color/colorPrimary"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>

@@ -15,26 +15,26 @@ import org.json.JSONObject;
 
 public class DataProvider extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1
-            ;
+    public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "flights_db.db";
 
     String SQL_CREATE_FLIGHT_SCHEDULES = "CREATE TABLE schedules(_ID INT PRIMARY KEY,DepartureAirport TEXT , ArrivalAirport TEXT , Duration TEXT," +
             "DeparturTime TEXT  ,ArrivalTime TEXT ,Stops TEXT,DirectFlights TEXT, DateToday TEXT )";
     String SQL_CREATE_AIRPORT_CODE = "CREATE TABLE airportcodes(_ID INT PRIMARY KEY,json TEXT)";
 
-    String SQL_CREATE_ORIGIN_LATITUDE ="CREATE TABLE latitudeorigin(_ID INT PRIMARY KEY,latitude TEXT )";
-    String SQL_CREATE_ORIGIN_LONGITUDE ="CREATE TABLE longitudeorigin(_ID INT PRIMARY KEY,longitude TEXT )";
+    String SQL_CREATE_ORIGIN_LATITUDE = "CREATE TABLE latitudeorigin(_ID INT PRIMARY KEY,latitude TEXT )";
+    String SQL_CREATE_ORIGIN_LONGITUDE = "CREATE TABLE longitudeorigin(_ID INT PRIMARY KEY,longitude TEXT )";
 
-    String SQL_CREATE_DESTINATION_LATITUDE ="CREATE TABLE latitudedest(_ID INT PRIMARY KEY,latitude TEXT )";
-    String SQL_CREATE_DESTINATION_LONGITUDE ="CREATE TABLE longitudedest(_ID INT PRIMARY KEY,longitude TEXT )";
+    String SQL_CREATE_DESTINATION_LATITUDE = "CREATE TABLE latitudedest(_ID INT PRIMARY KEY,latitude TEXT )";
+    String SQL_CREATE_DESTINATION_LONGITUDE = "CREATE TABLE longitudedest(_ID INT PRIMARY KEY,longitude TEXT )";
 
     String SQL_DELETE_FLIGHT_SCHEDULES = "DROP TABLE IF EXISTS schedules";
     String SQL_DELETE_AIRPORT_CODE = "DROP TABLE IF EXISTS airportcodes";
     String SQL_DELETE_ORIGIN_LATITUDE = "DROP TABLE IF EXISTS latitudeorigin";
-    String SQL_DELETE_ORIGIN_LONGITUDE ="DROP TABLE IF EXISTS longitudeorigin";
+    String SQL_DELETE_ORIGIN_LONGITUDE = "DROP TABLE IF EXISTS longitudeorigin";
     String SQL_DELETE_DEST_LATITUDE = "DROP TABLE IF EXISTS latitudedest";
-    String SQL_DELETE_DEST_LONGITUDE ="DROP TABLE IF EXISTS longitudedest";
+    String SQL_DELETE_DEST_LONGITUDE = "DROP TABLE IF EXISTS longitudedest";
+
     public DataProvider(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -66,65 +66,61 @@ public class DataProvider extends SQLiteOpenHelper {
 
     public String storeAirportCodesAndNames(String json) {
 
-        try
-        {
+        try {
             SQLiteDatabase db = this.getWritableDatabase();
             db.execSQL("INSERT INTO  airportcodes(json) " +
-                    "VALUES ('"+json+"')");
+                    "VALUES ('" + json + "')");
             return "Updates Saved";
         } catch (Exception ex) {
-            return "Error! "+ex.getMessage();
+            return "Error! " + ex.getMessage();
         }
     }
 
 
     public String storeOriginLatitude(String lat) {
 
-        try
-        {
+        try {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.execSQL("INSERT INTO  latitudeorigin(latitude) VALUES ('"+lat+"')");
+            db.execSQL("INSERT INTO  latitudeorigin(latitude) VALUES ('" + lat + "')");
             return "Updates Saved";
         } catch (Exception ex) {
-            return "Error! "+ex.getMessage();
+            return "Error! " + ex.getMessage();
         }
     }
 
     public String storeOriginLongitude(String longi) {
 
-        try
-        {
+        try {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.execSQL("INSERT INTO  longitudeorigin  (longitude) VALUES ('"+longi+"')");
+            db.execSQL("INSERT INTO  longitudeorigin  (longitude) VALUES ('" + longi + "')");
             return "Updates Saved";
         } catch (Exception ex) {
-            return "Error! "+ex.getMessage();
+            return "Error! " + ex.getMessage();
         }
     }
 
     public String storeDestLatitude(String lat) {
 
-        try
-        {
+        try {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.execSQL("INSERT INTO  latitudedest  (latitude) VALUES ('"+lat+"')");
+            db.execSQL("INSERT INTO  latitudedest  (latitude) VALUES ('" + lat + "')");
             return "Updates Saved";
         } catch (Exception ex) {
-            return "Error! "+ex.getMessage();
+            return "Error! " + ex.getMessage();
         }
     }
 
     public String storeDestLongitude(String longi) {
 
-        try
-        {
+        try {
             SQLiteDatabase db = this.getWritableDatabase();
-            db.execSQL("INSERT INTO  longitudedest  (longitude) VALUES ('"+longi+"')");
+            db.execSQL("INSERT INTO  longitudedest  (longitude) VALUES ('" + longi + "')");
             return "Updates Saved";
         } catch (Exception ex) {
-            return "Error! "+ex.getMessage();
+            return "Error! " + ex.getMessage();
         }
     }
+
     public void UpdateLatitudeOrigin() {
 
         try {
@@ -163,7 +159,8 @@ public class DataProvider extends SQLiteOpenHelper {
         }
 
     }
-    public void UpdateLongitudeDest (){
+
+    public void UpdateLongitudeDest() {
 
         try {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -176,68 +173,65 @@ public class DataProvider extends SQLiteOpenHelper {
 
     }
 
-    public String GetOriginLatitude(){
+    public String GetOriginLatitude() {
         String selectQuery = "SELECT latitude FROM latitudeorigin";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null && c.moveToFirst()) {
-            return  c.getString(c.getColumnIndex("latitude")).toUpperCase();
-        }
-        else
+            return c.getString(c.getColumnIndex("latitude")).toUpperCase();
+        } else
 
-        return "0.0000";
+            return "0.0000";
     }
-    public String GetOriginLongitude(){
+
+    public String GetOriginLongitude() {
         String selectQuery = "SELECT longitude FROM longitudeorigin";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null && c.moveToFirst()) {
-            return  c.getString(c.getColumnIndex("longitude")).toUpperCase();
-        }
-        else
+            return c.getString(c.getColumnIndex("longitude")).toUpperCase();
+        } else
 
             return "0.0000";
     }
-    public String GetDestLatitude(){
+
+    public String GetDestLatitude() {
 
         String selectQuery = "SELECT latitude FROM latitudedest";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null && c.moveToFirst()) {
-            return  c.getString(c.getColumnIndex("latitude")).toUpperCase();
-        }
-        else
+            return c.getString(c.getColumnIndex("latitude")).toUpperCase();
+        } else
 
             return "0.0000";
     }
-    public String GetDestLongitude(){
+
+    public String GetDestLongitude() {
         String selectQuery = "SELECT longitude FROM longitudedest";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null && c.moveToFirst()) {
-            return  c.getString(c.getColumnIndex("longitude")).toUpperCase();
-        }
-        else
+            return c.getString(c.getColumnIndex("longitude")).toUpperCase();
+        } else
 
             return "0.0000";
     }
 
 
-
     public String storeFlightsinSql(String departureAirport, String arrivalAirport, String duration,
                                     String departuretime, String arrivalTime,
-                                    String stops,String directFlighgts, String dateToDay) {
+                                    String stops, String directFlighgts, String dateToDay) {
 
-        try
-        {
+        try {
             SQLiteDatabase db = this.getWritableDatabase();
             db.execSQL("INSERT INTO  schedules(DepartureAirport,ArrivalAirport,Duration,DeparturTime" +
-                    ",ArrivalTime,Stops,DirectFlights,DateToday) VALUES ('"+departureAirport+"','"+arrivalAirport+"'," +
-                    "'"+duration+"','"+departuretime+"','"+arrivalTime
-                    +"','"+stops+"','"+directFlighgts+"','"+dateToDay+"')");
+                    ",ArrivalTime,Stops,DirectFlights,DateToday) VALUES ('" + departureAirport + "','" + arrivalAirport + "'," +
+                    "'" + duration + "','" + departuretime + "','" + arrivalTime
+                    + "','" + stops + "','" + directFlighgts + "','" + dateToDay + "')");
             return "Updates Saved";
         } catch (Exception ex) {
-            return "Error! "+ex.getMessage();
+            return "Error! " + ex.getMessage();
         }
     }
 
@@ -248,7 +242,7 @@ public class DataProvider extends SQLiteOpenHelper {
             db.execSQL("delete from schedules ");
             //return "Updates Saved";
         } catch (Exception ex) {
-           // return "Error! " + ex.getMessage();
+            // return "Error! " + ex.getMessage();
 
         }
 
@@ -276,7 +270,7 @@ public class DataProvider extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(searchQuery, null);
 
         JSONArray resultSet = new JSONArray();
-       // JSONObject returnObj = new JSONObject();
+        // JSONObject returnObj = new JSONObject();
 
         cursor.moveToFirst();
         while (cursor.isAfterLast() == false) {
@@ -312,16 +306,15 @@ public class DataProvider extends SQLiteOpenHelper {
     }
 
 
-    public String getIATAJson(){
+    public String getIATAJson() {
 
 
         String selectQuery = "SELECT json FROM airportcodes";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor c = db.rawQuery(selectQuery, null);
         if (c != null && c.moveToFirst()) {
-            return  c.getString(c.getColumnIndex("json")).toUpperCase();
-        }
-        else
+            return c.getString(c.getColumnIndex("json")).toUpperCase();
+        } else
             return "Kampala";
 
     }
@@ -368,8 +361,6 @@ public class DataProvider extends SQLiteOpenHelper {
         Log.d("TAG_NAME", resultSet.toString());
         return resultSet;
     }
-
-
 
 
 }

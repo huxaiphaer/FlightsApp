@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:background="@drawable/bg"
     android:orientation="vertical"
     tools:context="ug.flights.huza.flightsapp.MainActivity">
 
@@ -27,8 +28,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
                 <TextView
+                    android:layout_margin="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/selectFlights"
+                    android:gravity="center"
+                    android:textAllCaps="true"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="17sp"
+                    />
+
+                <fonts.LucidaBright
                     android:layout_margin="6dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -44,7 +56,7 @@
                     android:background="@color/spinnercolor"
                     android:layout_height="40dp"
                     android:spinnerMode="dialog" />
-                <TextView
+                <fonts.LucidaBright
                     android:layout_margin="6dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -62,7 +74,7 @@
                     android:layout_margin="6dp"
                     android:spinnerMode="dialog" />
 
-                <TextView
+                <fonts.LucidaBright
                     android:layout_margin="6dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

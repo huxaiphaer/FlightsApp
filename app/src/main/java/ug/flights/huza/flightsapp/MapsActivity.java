@@ -5,12 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,19 +25,13 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.async.util.HashList;
 import com.koushikdutta.ion.Ion;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import model.AirportCodesModel;
 
@@ -49,22 +40,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private String from, to;
     private Intent i;
-    SharedPreferences sharedpreferences;
-    String mytokenFromSharedPref="";
-    HashMap<String,String> hashMapOrigin=null;
-     HashMap<String,String> hashMapDestination=null;
-    private static final int COLOR_BLACK_ARGB = 0xff000000;
+    String mytokenFromSharedPref = "";
     private static final int POLYLINE_STROKE_WIDTH_PX = 9;
+    private SharedPreferences sharedpreferences;
+    private static String MY_LAT_ORIGIN = "latorigin";
+    private static final String MY_LONG_ORIGIN = "longorigin";
+    private static final String MY_LAT_DEST = "latdest";
+    private static final String MY_LONG_DEST = "longdest";
+    private static final String GOOGLE_MAPS_PREF = "googleprefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-
         //Shared preference data
-        sharedpreferences = getSharedPreferences(MainActivity.MyPREFERENCES, Context.MODE_PRIVATE);
-        mytokenFromSharedPref = sharedpreferences.getString(MainActivity.MY_TOKEN,null);
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -74,32 +64,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        i= getIntent();
-        if(i!=null){
+
+        //shared preference initialization for retrieving a token
+        sharedpreferences = getSharedPreferences(MainActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        mytokenFromSharedPref = sharedpreferences.getString(MainActivity.MY_TOKEN, "").trim();
+
+        //New shared preference initialization for saving location points
+        sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+        i = getIntent();
+        if (i != null) {
             from = i.getStringExtra("fromLocation");
             to = i.getStringExtra("toLocation");
 
-            hashMapOrigin = new HashMap<>();
-            hashMapDestination = new HashMap<>();
 
             getOriginLocation(from);
             getDestinationLocation(to);
 
-            DataProvider dp = new DataProvider(MapsActivity.this);
-            double lto = Double.parseDouble(dp.GetOriginLatitude());
-            double longo = Double.parseDouble(dp.GetOriginLongitude());
-            double ltd = Double.parseDouble(dp.GetDestLatitude());
-            double longd= Double.parseDouble(dp.GetDestLongitude());
+            SharedPreferences sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+            String latitudeOrigin = sharedpreferences.getString(MY_LAT_ORIGIN, null);
+            String longitudeOrigin = sharedpreferences.getString(MY_LONG_ORIGIN, null);
+            String latitudeDest = sharedpreferences.getString(MY_LAT_DEST, null);
+            String longitudeDest = sharedpreferences.getString(MY_LONG_DEST, null);
 
-            Toast.makeText(MapsActivity.this," LTO :  "+ lto+
-                    " LNGO : "+ longo+
-                    "LTD : "+ ltd+
-                    "LONGD : "+ longd,Toast.LENGTH_LONG).show();
 
-            System.out.println(" LTO :  "+ lto+
-                    " LNGO : "+ longo+
-                    "LTD : "+ ltd+
-                    "LONGD : "+ longd);
+            // print in logcat
+            System.out.println(" ---> Shared NEW ----> " + " LTO :  " + latitudeOrigin +
+                    " LNGO : " + longitudeOrigin +
+                    "LTD : " + latitudeDest +
+                    "LONGD : " + longitudeDest);
 
 
         }
@@ -119,23 +111,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-
-    private void getOriginLocation(String airportCode)
-    {
-        String token=  mytokenFromSharedPref;
+    private void getOriginLocation(String airportCode) {
+        String token = mytokenFromSharedPref;
         String Limit = "100";
-        final String Url ="/v1/references/airports/"+airportCode+"/?limit="+Limit+"&offset=0&LHoperated=1&access_token="+token;
+        final String Url = "/v1/references/airports/" + airportCode + "/?limit=" + Limit + "&offset=0&LHoperated=1&access_token=" + token;
         final ProgressDialog pd = new ProgressDialog(MapsActivity.this);
         pd.setMessage("Getting Airport Locations ` ...");
         pd.show();
         Ion.with(MapsActivity.this)
-                .load(Config.MAIN__URL+Url)
+                .load(Config.MAIN__URL + Url)
                 .progressDialog(pd)
-                .setHeader("Accept","application/json")
+                .setHeader("Accept", "application/json")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
-                    public void onCompleted(Exception e,final  JsonObject result) {
+                    public void onCompleted(Exception e, final JsonObject result) {
 
 
                         try {
@@ -143,7 +133,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 DataProvider dp = new DataProvider(MapsActivity.this);
                                 dp.getAirportcodes();
                                 parseOriginJson(result.toString());
-                              //  System.out.println(" REAL RESULT :  " + result.toString());
+                                System.out.println(" REAL RESULT :  " + result.toString());
                                 pd.dismiss();
 
 
@@ -151,8 +141,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Toast.makeText(MapsActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
                                 pd.dismiss();
                             }
-                        }
-                        catch (Exception t){
+                        } catch (Exception t) {
                             Toast.makeText(MapsActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
                             pd.dismiss();
                         }
@@ -162,23 +151,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void getDestinationLocation(String airportCode)
-    {
+    private void getDestinationLocation(String airportCode) {
         //https://api.lufthansa.com/v1/references/airports/?limit=100&offset=0&LHoperated=1&access_token=8yvqxdkbjpw74dzrujtnf9c3
-        String token=  mytokenFromSharedPref;
+        String token = mytokenFromSharedPref;
         String Limit = "100";
-        final String Url ="/v1/references/airports/"+airportCode+"/?limit="+Limit+"&offset=0&LHoperated=1&access_token="+token;
+        final String Url = "/v1/references/airports/" + airportCode + "/?limit=" + Limit + "&offset=0&LHoperated=1&access_token=" + token;
         final ProgressDialog pd = new ProgressDialog(MapsActivity.this);
         pd.setMessage("Getting Flight Routes ...");
         pd.show();
         Ion.with(MapsActivity.this)
-                .load(Config.MAIN__URL+Url)
+                .load(Config.MAIN__URL + Url)
                 .progressDialog(pd)
-                .setHeader("Accept","application/json")
+                .setHeader("Accept", "application/json")
                 .asJsonObject()
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
-                    public void onCompleted(Exception e,final  JsonObject result) {
+                    public void onCompleted(Exception e, final JsonObject result) {
 
 
                         try {
@@ -194,8 +182,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Toast.makeText(MapsActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
                                 pd.dismiss();
                             }
-                        }
-                        catch (Exception t){
+                        } catch (Exception t) {
                             Toast.makeText(MapsActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
                             pd.dismiss();
                         }
@@ -206,14 +193,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private void parseOriginJson(String  result)
-    {
+    private void parseOriginJson(String result) {
         try {
-            if (result!=null) {
+            if (result != null) {
                 List<AirportCodesModel> itemList = new ArrayList<>();
-                JSONArray arr = new JSONArray("["+result+"]");
-                for (int i = 0; i < arr.length(); i++)
-                {
+                JSONArray arr = new JSONArray("[" + result + "]");
+                for (int i = 0; i < arr.length(); i++) {
                     String AirportCode = arr.getJSONObject(i)
                             .getJSONObject("AirportResource")
                             .getJSONObject("Airports")
@@ -227,7 +212,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .getJSONObject("Coordinate")
                             .getString("Latitude");
 
-                    String Longitude =  arr.getJSONObject(i)
+                    String Longitude = arr.getJSONObject(i)
                             .getJSONObject("AirportResource")
                             .getJSONObject("Airports")
                             .getJSONObject("Airport")
@@ -236,16 +221,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .getString("Longitude");
 
                     DataProvider dp = new DataProvider(MapsActivity.this);
-                    dp.UpdateLatitudeOrigin();
+                   /* dp.UpdateLatitudeOrigin();
                     dp.UpdateLongitudeOrigin();
                     dp.storeOriginLatitude(Latitude);
-                    dp.storeOriginLongitude(Longitude);
+                    dp.storeOriginLongitude(Longitude);*/
 
-                    Toast.makeText(MapsActivity.this," AirportCode : "+ AirportCode+" Latitude : "
-                            + Latitude+" Longitude :"+Longitude,Toast.LENGTH_LONG).show();
+                    sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
 
-                    System.out.println(" AirportCode : "+ AirportCode+" Latitude : "
-                            + Latitude+" Longitude :"+Longitude);
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.putString(MY_LAT_ORIGIN, Latitude);
+                    editor.putString(MY_LONG_ORIGIN, Longitude);
+                    editor.commit();
+
+                    System.out.println(" AirportCode : " + AirportCode + " Latitude : "
+                            + Latitude + " Longitude :" + Longitude);
 
                     AirportCodesModel model = new AirportCodesModel();
                     model.setAirportCode(AirportCode);
@@ -255,34 +244,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
 
-                for (int k=0; k<itemList.size(); k++){
-
-                    hashMapDestination.put(itemList.get(0).getLatitude(),itemList.get(0).getLongitude());
-                }
+            } else {
+                Toast.makeText(MapsActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
 
             }
-            else{
-                Toast.makeText(MapsActivity.this,Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
-
-            }
-        }
-        catch (JSONException r){
-            System.out.println("ERROR PROB ORIGIN  : "+  r);
+        } catch (JSONException r) {
+            System.out.println("ERROR PROB ORIGIN  : " + r);
 
         }
 
     }
-    private void parseDestinationJson(String  result)
-    {
+
+    private void parseDestinationJson(String result) {
         try {
-            if (result!=null) {
+            if (result != null) {
 
                 List<AirportCodesModel> itemList = new ArrayList<>();
 
-                //  JSONObject obj = new JSONObject(result).getJSONObject("AirportResource").getJSONObject("Airports").getJSONObject("Airport");
-                JSONArray arr = new JSONArray("["+result+"]");
-                for (int i = 0; i < arr.length(); i++)
-                {
+                JSONArray arr = new JSONArray("[" + result + "]");
+                for (int i = 0; i < arr.length(); i++) {
                     String AirportCode = arr.getJSONObject(i)
                             .getJSONObject("AirportResource")
                             .getJSONObject("Airports")
@@ -296,7 +276,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .getJSONObject("Coordinate")
                             .getString("Latitude");
 
-                    String Longitude =  arr.getJSONObject(i)
+                    String Longitude = arr.getJSONObject(i)
                             .getJSONObject("AirportResource")
                             .getJSONObject("Airports")
                             .getJSONObject("Airport")
@@ -306,17 +286,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
                     DataProvider dp = new DataProvider(MapsActivity.this);
-                    dp.UpdateLatitudeDest();
+                   /* dp.UpdateLatitudeDest();
                     dp.UpdateLongitudeDest();
                     dp.storeDestLatitude(Latitude);
                     dp.storeDestLongitude(Longitude);
+*/
+                    //Initializing Shared Prefeerences
+                    sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+
+                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    editor.putString(MY_LAT_DEST, Latitude);
+                    editor.putString(MY_LONG_DEST, Longitude);
+                    editor.commit();
 
 
-                    Toast.makeText(MapsActivity.this," AirportCode : "+ AirportCode+" Latitude : "
-                            + Latitude+" Longitude :"+Longitude,Toast.LENGTH_LONG).show();
-
-                    System.out.println(" AirportCode : "+ AirportCode+" Latitude : "
-                            + Latitude+" Longitude :"+Longitude);
+                    System.out.println(" AirportCode : " + AirportCode + " Latitude : "
+                            + Latitude + " Longitude :" + Longitude);
 
                     AirportCodesModel model = new AirportCodesModel();
                     model.setAirportCode(AirportCode);
@@ -326,18 +311,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
 
-                for (int k=0; k<itemList.size(); k++){
-
-                    hashMapDestination.put(itemList.get(0).getLatitude(),itemList.get(0).getLongitude());
-                }
-            }
-            else{
-                Toast.makeText(MapsActivity.this,Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(MapsActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
 
             }
-        }
-        catch (JSONException r){
-            System.out.println("ERROR PROB : "+  r);
+        } catch (JSONException r) {
+            System.out.println("ERROR PROB : " + r);
 
         }
 
@@ -355,50 +334,94 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap)
-    {
+    public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
 
 
-            DataProvider dp = new DataProvider(MapsActivity.this);
+        // DataProvider dp = new DataProvider(MapsActivity.this);
 
-            double lto = Double.parseDouble(dp.GetOriginLatitude());
-            double longo = Double.parseDouble(dp.GetOriginLongitude());
-            double ltd = Double.parseDouble(dp.GetDestLatitude());
-            double longd= Double.parseDouble(dp.GetDestLongitude());
 
-                Polyline polyline = googleMap.addPolyline(new PolylineOptions()
-                        .clickable(true)
-                        .add(
-                                new LatLng(lto, longo),
-                                new LatLng(ltd, longd)
-                        ));
-                 stylePolyline(polyline);
+        String latitudeOrigin = sharedpreferences.getString(MY_LAT_ORIGIN, "0.00").trim();
+        String longitudeOrigin = sharedpreferences.getString(MY_LONG_ORIGIN, "0.00").trim();
+        String latitudeDest = sharedpreferences.getString(MY_LAT_DEST, "0.00").trim();
+        String longitudeDest = sharedpreferences.getString(MY_LONG_DEST, "0.00").trim();
 
-                // Add a marker and move the camera Origin
-                LatLng origin = new LatLng(lto, longo);
-                mMap.addMarker(new MarkerOptions()
-                        .position(origin)
-                        .title("ORIGIN : "+from)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport_mark)
-                        ));
-               // mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
 
-                // Add a marker and move the camera Destination
-                LatLng destination = new LatLng(ltd, longd);
-                mMap.addMarker(new MarkerOptions()
-                        .position(destination)
-                        .title("DESTINATION : "+to)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport_mark)
-                        ));
-               // mMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
+        double lto = Double.parseDouble(latitudeOrigin);
+        double longo = Double.parseDouble(longitudeOrigin);
+        double ltd = Double.parseDouble(latitudeDest);
+        double longd = Double.parseDouble(longitudeDest);
+
+        Polyline polyline = googleMap.addPolyline(new PolylineOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(lto, longo),
+                        new LatLng(ltd, longd)
+                ));
+        // stylePolyline(polyline);
+
+
+        // Add a marker and move the camera Origin
+        LatLng origin = new LatLng(lto, longo);
+
+        mMap.addMarker(new MarkerOptions()
+                .position(origin)
+                .title("ORIGIN : " + from)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport_mark_one)
+                ));
+        // mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
+
+        // Add a marker and move the camera Destination
+        LatLng destination = new LatLng(ltd, longd);
+        mMap.addMarker(new MarkerOptions()
+                .position(destination)
+                .title("DESTINATION : " + to)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport_mark_one)
+                ));
+        // mMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
+        createDashedPolyLine(mMap, origin, destination);
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(new LatLng(lto, longo));
         builder.include(new LatLng(ltd, longd));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 48));
 
+    }
+
+
+    //Dashed polyline
+
+    public static void createDashedPolyLine(GoogleMap map, LatLng latLngOrig, LatLng latLngDest) {
+        double difLat = latLngDest.latitude - latLngOrig.latitude;
+        double difLng = latLngDest.longitude - latLngOrig.longitude;
+
+        double zoom = map.getCameraPosition().zoom;
+
+        double divLat = difLat / (zoom * 2);
+        double divLng = difLng / (zoom * 2);
+
+        LatLng tmpLatOri = latLngOrig;
+
+        for (int i = 0; i < (zoom * 2); i++) {
+            LatLng loopLatLng = tmpLatOri;
+
+            if (i > 0) {
+                loopLatLng = new LatLng(tmpLatOri.latitude + (divLat * 0.25f), tmpLatOri.longitude + (divLng * 0.25f));
+            }
+
+            Polyline polyline = map.addPolyline(new PolylineOptions()
+                    .add(loopLatLng)
+                    .add(new LatLng(tmpLatOri.latitude + divLat, tmpLatOri.longitude + divLng))
+                    .color(Color.parseColor("#257c38"))
+                    .width(5f));
+
+            tmpLatOri = new LatLng(tmpLatOri.latitude + divLat, tmpLatOri.longitude + divLng);
+            polyline.setEndCap(new RoundCap());
+            polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
+            polyline.setColor(Color.parseColor("#257c38"));
+            polyline.setJointType(JointType.ROUND);
+        }
     }
 
     private void stylePolyline(Polyline polyline) {

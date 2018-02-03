@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
@@ -35,6 +36,8 @@ public class FlightListActivity extends AppCompatActivity {
     public static final String MY_TOKEN = "AccessToken";
     List<FlightModel> itemList = null;
 
+    private TextView origin_txt, dest_txt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,29 +50,35 @@ public class FlightListActivity extends AppCompatActivity {
         SharedPreferences sharedpreferences = getSharedPreferences(MainActivity.MyPREFERENCES, Context.MODE_PRIVATE);
         mytokenFromSharedPref = sharedpreferences.getString(MainActivity.MY_TOKEN, null);
 
-        Toast.makeText(FlightListActivity.this, "" + mytokenFromSharedPref, Toast.LENGTH_LONG).show();
         System.out.println(" Shared PREF TOKEN : " + mytokenFromSharedPref);
 
         i = getIntent();
 
         if (i != null) {
-            ORIGIN = i.getStringExtra("origin").substring(0, 3);
-            DESTINATION = i.getStringExtra("destination").substring(0, 3);
+            ORIGIN = i.getStringExtra("origin");
+            DESTINATION = i.getStringExtra("destination");
+            origin_txt = (TextView) findViewById(R.id.origin_txt_detail);
+            dest_txt = (TextView) findViewById(R.id.dest_txt_detail);
+
+            //set text.
+            origin_txt.setText(ORIGIN);
+            dest_txt.setText(DESTINATION);
+
             DATEFLIGHTS = i.getStringExtra("dateflights");
-            fetchFlightsOnline(ORIGIN, DESTINATION, DATEFLIGHTS, CHECKFLIGHTS);
+            fetchFlightsOnline(ORIGIN.substring(0, 3), DESTINATION.substring(0, 3), DATEFLIGHTS, CHECKFLIGHTS);
         }
 
-
-        Toast.makeText(FlightListActivity.this, "" + CHECKFLIGHTS, Toast.LENGTH_LONG).show();
         System.out.print("Check BOX : " + CHECKFLIGHTS);
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Flights On :" + DATEFLIGHTS);
+        getSupportActionBar().setTitle("Flights Schedules  On : " + DATEFLIGHTS);
 
 
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -78,16 +87,13 @@ public class FlightListActivity extends AppCompatActivity {
             case android.R.id.home:
                 onBackPressed();
                 break;
-
-
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void fetchFlightsOnline(String origin, String Dest, String Dateflights, int Checkflights) {
+    private void fetchFlightsOnline(String origin, final String Dest, String Dateflights, int Checkflights) {
 
         //Retrieve our token from shared preferences
-
         String token = mytokenFromSharedPref;
         final String Url = "/v1/operations/schedules/" + origin + "/" + Dest + "/" + Dateflights + "?directFlights=" + Checkflights + "&access_token=" + token;
         final ProgressDialog pd = new ProgressDialog(FlightListActivity.this);
@@ -101,28 +107,48 @@ public class FlightListActivity extends AppCompatActivity {
                 .setCallback(new FutureCallback<JsonObject>() {
                     @Override
                     public void onCompleted(Exception e, final JsonObject result) {
-
-
                         try {
-                            if (result.toString() != null) {
-                                parseJson(result.toString());
+
+                            String res = result.toString();
+                            JSONObject obj = new JSONObject(res);
+                            boolean hasError = obj
+                                    .getJSONObject("ProcessingErrors")
+                                    .has("ProcessingError");
+                            boolean hasData = obj.has("ScheduleResource");
+
+
+                            if (res != null) {
+
+                                if (hasError) {
+                                    Toast.makeText(FlightListActivity.this, Config.NO_SELECTIONS_AVAILABLE, Toast.LENGTH_LONG).show();
+                                    pd.dismiss();
+
+                                }
+
+
                                 pd.dismiss();
                             } else {
                                 Toast.makeText(FlightListActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
                                 pd.dismiss();
                             }
+
+
                         } catch (Exception r) {
 
-                            Toast.makeText(FlightListActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
+                            if(r.getMessage().equals("No value for ProcessingErrors")){
+                                parseJson(result.toString(),Dest);
+                                pd.dismiss();
+                            }
+                           // Toast.makeText(FlightListActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
+                            System.out.println("Error ---> "+ r.getMessage());
 
                         }
-
                     }
                 });
     }
 
 
-    private void parseJson(String result) {
+    private void parseJson(String result , String dest) {
 
         try {
             if (result != null) {
@@ -131,7 +157,6 @@ public class FlightListActivity extends AppCompatActivity {
                 JSONObject obj = new JSONObject(result).getJSONObject("ScheduleResource");
                 JSONArray arr = obj.getJSONArray("Schedule");
                 itemList = new ArrayList<>();
-
 
                 for (int i = 0; i < arr.length(); i++) {
 
@@ -157,7 +182,6 @@ public class FlightListActivity extends AppCompatActivity {
                                 fmodel.setArrivalTime(ArrivalTime);
                                 fmodel.setStops(" One Stop ");
                                 fmodel.Stops = Stops;
-
 
                                 itemList.add(fmodel);
 
@@ -194,12 +218,15 @@ public class FlightListActivity extends AppCompatActivity {
                                 " Duration : " + Duration + " Dept time : " + DepartureTime + " Arr Time " + ArrivalTime
                                 + " Stops " + Stops);
 
+                    } else {
+                        Toast.makeText(FlightListActivity.this, Config.NO_SELECTIONS_AVAILABLE, Toast.LENGTH_LONG).show();
+
                     }
 
                 }
 
                 // Setup and Handover data to recyclerview
-                final FlightAdapter adapter = new FlightAdapter(itemList, FlightListActivity.this);
+                final FlightAdapter adapter = new FlightAdapter(itemList, FlightListActivity.this,dest);
                 flights_rv.setAdapter(adapter);
 
             } else {
@@ -207,7 +234,7 @@ public class FlightListActivity extends AppCompatActivity {
 
             }
         } catch (JSONException r) {
-            System.out.println("ERROR PROB : " + r);
+            System.out.println("ERROR PROB --> : " + r);
 
         }
 

@@ -5,4 +5,8 @@
     <color name="colorAccent">#e6864e</color>
     <color name="spinnercolor">#ff9b60</color>
     <color name="polylineColor">#257c38</color>
+    <color name="white">#fff</color>
+    <color name="red">#CC0B25</color>
+    <color name="green">#034C0A</color>
+    <color name="black">#000</color>
 </resources>

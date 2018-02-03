@@ -109,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    //Search flights Button CLick
     public void onSearchFlights(View v) {
         String GetOrigin = from.getSelectedItem().toString();
         String GetDestination = to.getSelectedItem().toString();
@@ -222,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
         String tokenURL = Config.TOKEN_URL;
         final ProgressDialog pd = new ProgressDialog(MainActivity.this);
-        pd.setMessage("Loading ` ...");
+        pd.setMessage("Loading...");
         pd.show();
         Ion.with(this)
                 .load("POST", tokenURL)

@@ -13,6 +13,7 @@ public class Config {
     public static final String TOKEN_URL="https://api.lufthansa.com/v1/oauth/token";
     public static final String POOR_NETWORK_CONNECTION ="check your network connection";
     public static final String URL_IATA_CODES="https://iatacodes.org/api/v6/airports?api_key=fcfc9a5f-990c-475a-9fa8-c9c8c780dc8d";
+    public static final String NO_SELECTIONS_AVAILABLE="No Flight schedules available for this selection , Try another one please ";
 
 
 }

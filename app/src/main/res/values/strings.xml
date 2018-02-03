@@ -1,9 +1,12 @@
 <resources>
-    <string name="app_name">Flights Schedule App</string>
+    <string name="app_name">Flight Schedule App</string>
     <string name="directflights">Direct Flights</string>
-    <string name="searchflights">Search Flights Schedules </string>
-    <string name="origin">Select Origin</string>
-    <string name="destination">Select Destination</string>
-    <string name="flightDate">Choose Date</string>
+    <string name="searchflights">Search Flight Schedules </string>
+    <string name="origin">Select Origin Airport</string>
+    <string name="destination">Select Destination Airport</string>
+    <string name="flightDate">Choose Travelling Date</string>
     <string name="title_activity_maps">Map</string>
+    <string name="half_flight">Half Flight (Flight not yet complete) </string>
+    <string name="direct_flight">Direct  Flight  (Flight completes)</string>
+    <string name="selectFlights">Select the Airports </string>
 </resources>

@@ -14,6 +14,16 @@ public class FlightModel {
     public String ArrivalTime;
     public String Stops;
     public String DirectFlights;
+    public String DirectFlihts;
+
+
+    public String getDirectFlihts() {
+        return DirectFlihts;
+    }
+
+    public void setDirectFlihts(String directFlihts) {
+        DirectFlihts = directFlihts;
+    }
 
     public String getDepartureAirport() {
         return DepartureAirport;

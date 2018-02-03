@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -11,10 +12,21 @@
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             app:cardElevation="3dp"
+            card_view:cardCornerRadius="4dp"
             android:layout_margin="6dp"
             app:cardBackgroundColor="#f0f1ed"
             android:padding="10dp"
             android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <View
+                    android:id="@+id/view_setColor"
+                    android:layout_width="7dp"
+                    android:layout_height="match_parent" />
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="vertical"
@@ -28,7 +40,7 @@
                         android:orientation="horizontal"
                         android:layout_margin="6dp"
                         android:layout_height="wrap_content">
-                        <TextView
+                        <fonts.LucidaBright
                             android:text="FROM: "
                             android:textStyle="bold"
                             android:textColor="#2c53a1"
@@ -46,7 +58,7 @@
                         android:layout_margin="6dp"
                         android:orientation="horizontal"
                         android:layout_height="wrap_content">
-                        <TextView
+                        <fonts.LucidaBright
 
                             android:text="TO: "
                             android:textStyle="bold"
@@ -66,7 +78,7 @@
                     android:orientation="horizontal"
                     android:layout_margin="6dp"
                     android:layout_height="wrap_content">
-                    <TextView
+                    <fonts.LucidaBright
                         android:text="DURATION: "
                         android:textStyle="bold"
                         android:textColor="#2c53a1"
@@ -85,10 +97,10 @@
                     android:orientation="horizontal"
                     android:layout_margin="6dp"
                     android:layout_height="wrap_content">
-                    <TextView
+                    <fonts.LucidaBright
                         android:text="DEPARTURE TIME: "
                         android:textStyle="bold"
-                        android:textColor="#cc1741"
+                        android:textColor="#2c53a1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                     <TextView
@@ -104,10 +116,9 @@
                     android:orientation="horizontal"
                     android:layout_margin="6dp"
                     android:layout_height="wrap_content">
-                    <TextView
-                        android:text="ARRIVAL: "
+                    <fonts.LucidaBright
+                        android:text="ARRIVAL TIME: "
                         android:textStyle="bold"
-
                         android:textColor="#2c53a1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -119,24 +130,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_margin="6dp"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:text="STOPS : "
-                        android:textStyle="bold"
-                        android:textColor="#2c53a1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                    <TextView
-                        android:id="@+id/stop_txt"
-                        android:text="0"
-                        android:textColor="#000"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
+
+            </LinearLayout>
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </LinearLayout>

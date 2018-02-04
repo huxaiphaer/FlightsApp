@@ -44,7 +44,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private String from, to;
-    private Intent i;
+    private Intent i=null;
     String mytokenFromSharedPref = "";
     private static final int POLYLINE_STROKE_WIDTH_PX = 9;
     private SharedPreferences sharedpreferences;
@@ -159,6 +159,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ));
 
             stylePolyline(polyline);*/
+
 
 
             for (Map.Entry m : hm.entrySet())

@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -40,7 +38,7 @@ import java.util.Map;
 import maps.MyItem;
 import model.AirportCodesModel;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private String from, to;
@@ -138,6 +136,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         hm.put(lto, longo);
         hm.put(ltd, longd);
 
+
         try {
             Polyline polyline = mMap.addPolyline(new PolylineOptions()
                     .clickable(true)
@@ -192,10 +191,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
 
-        polyline.setEndCap(new RoundCap());
+     //   polyline.setEndCap(new RoundCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
         polyline.setColor(Color.parseColor("#257c38"));
-        polyline.setJointType(JointType.ROUND);
+       // polyline.setJointType(JointType.ROUND);
     }
 
 
@@ -212,26 +211,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
-    }
 
     private void getOriginLocation(String airportCode) {
         String token = mytokenFromSharedPref;

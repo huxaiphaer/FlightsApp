@@ -322,8 +322,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     sp = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
 
                     SharedPreferences.Editor editor = sp.edit();
-                    /*editor.remove(MY_LAT_ORIGIN);
-                    editor.remove(MY_LONG_ORIGIN);*/
                     editor.putString(MY_LAT_ORIGIN, Latitude);
                     editor.putString(MY_LONG_ORIGIN, Longitude);
                     editor.commit();
@@ -381,8 +379,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     sp = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
 
                     SharedPreferences.Editor editor = sp.edit();
-                    /*editor.remove(MY_LAT_DEST);
-                    editor.remove(MY_LONG_DEST);*/
+                    
                     editor.putString(MY_LAT_DEST, Latitude);
                     editor.putString(MY_LONG_DEST, Longitude);
                     editor.commit();

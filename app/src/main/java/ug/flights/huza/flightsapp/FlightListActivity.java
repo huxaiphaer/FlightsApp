@@ -33,7 +33,6 @@ public class FlightListActivity extends AppCompatActivity {
     String ORIGIN, DESTINATION, DATEFLIGHTS;
     private static int CHECKFLIGHTS = 0;
     String mytokenFromSharedPref = "";
-    public static final String MY_TOKEN = "AccessToken";
     List<FlightModel> itemList = null;
 
     private TextView origin_txt, dest_txt;
@@ -68,7 +67,7 @@ public class FlightListActivity extends AppCompatActivity {
             fetchFlightsOnline(ORIGIN.substring(0, 3), DESTINATION.substring(0, 3), DATEFLIGHTS, CHECKFLIGHTS);
         }
 
-        System.out.println("DEST  : " + DESTINATION.substring(0,3)+" ORIGIN : "+ ORIGIN.substring(0,3));
+        System.out.println("DEST  : " + DESTINATION.substring(0, 3) + " ORIGIN : " + ORIGIN.substring(0, 3));
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -77,7 +76,6 @@ public class FlightListActivity extends AppCompatActivity {
 
 
     }
-
 
 
     @Override
@@ -134,12 +132,12 @@ public class FlightListActivity extends AppCompatActivity {
 
                         } catch (Exception r) {
 
-                            if(r.getMessage().equals("No value for ProcessingErrors")){
-                                parseJson(result.toString(),Dest);
+                            if (r.getMessage().equals("No value for ProcessingErrors")) {
+                                parseJson(result.toString(), Dest);
                                 pd.dismiss();
                             }
-                           // Toast.makeText(FlightListActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
-                            System.out.println("Error ---> "+ r.getMessage());
+                            // Toast.makeText(FlightListActivity.this, Config.POOR_NETWORK_CONNECTION, Toast.LENGTH_LONG).show();
+                            System.out.println("Error ---> " + r.getMessage());
 
                         }
                     }
@@ -147,7 +145,7 @@ public class FlightListActivity extends AppCompatActivity {
     }
 
 
-    private void parseJson(String result , String dest) {
+    private void parseJson(String result, String dest) {
 
         try {
             if (result != null) {
@@ -225,7 +223,7 @@ public class FlightListActivity extends AppCompatActivity {
                 }
 
                 // Setup and Handover data to recyclerview
-                final FlightAdapter adapter = new FlightAdapter(itemList, FlightListActivity.this,dest);
+                final FlightAdapter adapter = new FlightAdapter(itemList, FlightListActivity.this, dest);
                 flights_rv.setAdapter(adapter);
 
             } else {

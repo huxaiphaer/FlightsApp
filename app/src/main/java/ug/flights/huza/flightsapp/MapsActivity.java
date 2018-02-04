@@ -44,7 +44,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private String from, to;
-    private Intent i=null;
+    private Intent i;
     String mytokenFromSharedPref = "";
     private static final int POLYLINE_STROKE_WIDTH_PX = 9;
     private SharedPreferences sharedpreferences;
@@ -61,8 +61,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        //Shared preference data
 
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -97,26 +95,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             getDestinationLocation(to);
         }
 
-        setUpClusterer(mMap);
     }
 
 
     //clustered map
 
     private void setUpClusterer(GoogleMap mMap) {
-        // Position the map.
 
-       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
-        // Initialize the manager with the context and the map.
-        // (Activity extends context, so we can pass 'this' in the constructor.)
         mClusterManager = new ClusterManager<MyItem>(this, mMap);
-
 
         // Point the map's listeners at the listeners implemented by the cluster
         // manager.
         mMap.setOnCameraIdleListener(mClusterManager);
         mMap.setOnMarkerClickListener(mClusterManager);
-
 
         // Add cluster items (markers) to the cluster manager.
         addItems(mMap);
@@ -130,13 +121,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String latitudeDest = sp.getString(MY_LAT_DEST, "0.00").trim();
         String longitudeDest = sp.getString(MY_LONG_DEST, "0.00").trim();
 
-
         // print in logcat
         System.out.println(" ---> Shared NEW ----> " + " LTO :  " + latitudeOrigin +
                 " LNGO : " + longitudeOrigin +
                 "LTD : " + latitudeDest +
                 "LONGD : " + longitudeDest);
-
 
         double lto = Double.parseDouble(latitudeOrigin);
         double longo = Double.parseDouble(longitudeOrigin);
@@ -150,7 +139,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         hm.put(ltd, longd);
 
         try {
-            /*Polyline polyline = mMap.addPolyline(new PolylineOptions()
+            Polyline polyline = mMap.addPolyline(new PolylineOptions()
                     .clickable(true)
                     .add(
                             new LatLng(lto, longo),
@@ -158,8 +147,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     ));
 
-            stylePolyline(polyline);*/
-
+            stylePolyline(polyline);
 
 
             for (Map.Entry m : hm.entrySet())
@@ -176,8 +164,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             builder.include(new LatLng(lto, longo));
             builder.include(new LatLng(ltd, longd));
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 48));
-        }
-        catch (Exception k){
+        } catch (Exception k) {
 
         }
 
@@ -328,7 +315,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void parseOriginJson(String result) {
         try {
             if (result != null) {
-                List<AirportCodesModel> itemList = new ArrayList<>();
+
                 JSONArray arr = new JSONArray("[" + result + "]");
                 for (int i = 0; i < arr.length(); i++) {
                     String AirportCode = arr.getJSONObject(i)
@@ -362,14 +349,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     editor.putString(MY_LONG_ORIGIN, Longitude);
                     editor.commit();
 
+                    setUpClusterer(mMap);
+
                     System.out.println(" AirportCode : " + AirportCode + " Latitude : "
                             + Latitude + " Longitude :" + Longitude);
 
-                    AirportCodesModel model = new AirportCodesModel();
-                    model.setAirportCode(AirportCode);
-                    model.setLatitude(Latitude);
-                    model.setLongitude(Longitude);
-                    itemList.add(model);
                 }
 
 
@@ -423,16 +407,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     editor.putString(MY_LAT_DEST, Latitude);
                     editor.putString(MY_LONG_DEST, Longitude);
                     editor.commit();
+                    setUpClusterer(mMap);
 
 
                     System.out.println(" AirportCode : " + AirportCode + " Latitude : "
                             + Latitude + " Longitude :" + Longitude);
 
-                    AirportCodesModel model = new AirportCodesModel();
-                    model.setAirportCode(AirportCode);
-                    model.setLatitude(Latitude);
-                    model.setLongitude(Longitude);
-                    itemList.add(model);
                 }
 
 

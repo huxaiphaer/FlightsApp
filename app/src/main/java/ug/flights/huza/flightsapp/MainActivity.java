@@ -32,7 +32,7 @@ import model.AirportCodesModel;
 
 public class MainActivity extends AppCompatActivity {
 
-    Context context = this;
+    private Context context = this;
     Calendar myCalendar = Calendar.getInstance();
     String dateFormat = "yyyy-MM-dd";
     DatePickerDialog.OnDateSetListener date;
@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
     String mytokenFromSharedPref = "";
     private Spinner from, to;
     private EditText date_edt;
-    public static final String SEND_ORIGIN="origin";
-    public static final String SEND_DESTINATION="destination";
-    public static final String SEND_DATEFLIGHT="dateflights";
+    public static final String SEND_ORIGIN = "origin";
+    public static final String SEND_DESTINATION = "destination";
+    public static final String SEND_DATEFLIGHT = "dateflights";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +54,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        //Spinners initialization
-        from = (Spinner) findViewById(R.id.origin_sp);
+        try {
+            //Spinners initialization
+            from = (Spinner) findViewById(R.id.origin_sp);
 
-        to = (Spinner) findViewById(R.id.destination_sp);
+            to = (Spinner) findViewById(R.id.destination_sp);
 
+        } catch (Exception v) {
 
+        }
         //Initializing Shared Prefeerences
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         retrieveAccessTokenfromServer();
@@ -112,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     //Search flights Button CLick
     public void onSearchFlights(View v) {
         String GetOrigin = from.getSelectedItem().toString();
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
         System.out.print("Origin " + GetOrigin + " Dest : " + GetDestination);
         Intent i = new Intent(MainActivity.this, FlightListActivity.class);
-        i.putExtra(SEND_DATEFLIGHT,FlightsDate);
+        i.putExtra(SEND_DATEFLIGHT, FlightsDate);
         i.putExtra(SEND_ORIGIN, GetOrigin);
         i.putExtra(SEND_DESTINATION, GetDestination);
         startActivity(i);

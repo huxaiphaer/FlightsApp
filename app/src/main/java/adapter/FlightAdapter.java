@@ -98,7 +98,7 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightHold
 
         public View root;
         public TextView from_txt, to_txt, duration_txt,
-                depature_txt, arrival_txt, stops_txt;
+                depature_txt, arrival_txt;
         public View view_setColor;
 
         public FlightHolder(View itemView) {

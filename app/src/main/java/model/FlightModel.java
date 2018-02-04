@@ -13,17 +13,9 @@ public class FlightModel {
     public  String DeparturTimee;
     public String ArrivalTime;
     public String Stops;
-    public String DirectFlights;
-    public String DirectFlihts;
 
 
-    public String getDirectFlihts() {
-        return DirectFlihts;
-    }
 
-    public void setDirectFlihts(String directFlihts) {
-        DirectFlihts = directFlihts;
-    }
 
     public String getDepartureAirport() {
         return DepartureAirport;
@@ -74,13 +66,6 @@ public class FlightModel {
         Stops = stops;
     }
 
-    public String getDirectFlights() {
-        return DirectFlights;
-    }
-
-    public void setDirectFlights(String directFlights) {
-        DirectFlights = directFlights;
-    }
 
 
 

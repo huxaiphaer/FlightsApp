@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
@@ -19,11 +21,11 @@ import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 import com.google.gson.JsonObject;
+import com.google.maps.android.clustering.ClusterManager;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
@@ -31,11 +33,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import maps.MyItem;
 import model.AirportCodesModel;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
     private String from, to;
@@ -43,11 +48,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String mytokenFromSharedPref = "";
     private static final int POLYLINE_STROKE_WIDTH_PX = 9;
     private SharedPreferences sharedpreferences;
+    private SharedPreferences sp;
     private static String MY_LAT_ORIGIN = "latorigin";
     private static final String MY_LONG_ORIGIN = "longorigin";
     private static final String MY_LAT_DEST = "latdest";
     private static final String MY_LONG_DEST = "longdest";
     private static final String GOOGLE_MAPS_PREF = "googleprefs";
+    private ClusterManager<MyItem> mClusterManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +63,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
 
         //Shared preference data
+
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -65,37 +74,142 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //shared preference initialization for retrieving a token
-        sharedpreferences = getSharedPreferences(MainActivity.MyPREFERENCES, Context.MODE_PRIVATE);
-        mytokenFromSharedPref = sharedpreferences.getString(MainActivity.MY_TOKEN, "").trim();
 
-        //New shared preference initialization for saving location points
-        sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+    }
+
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        sharedpreferences = getSharedPreferences(MainActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+        sp = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+
+        //getting a token value
+        mytokenFromSharedPref = sharedpreferences.getString(MainActivity.MY_TOKEN, "").trim();
+        mMap = googleMap;
+
         i = getIntent();
         if (i != null) {
+
             from = i.getStringExtra("fromLocation");
             to = i.getStringExtra("toLocation");
-
-
             getOriginLocation(from);
             getDestinationLocation(to);
+        }
 
-            SharedPreferences sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
-            String latitudeOrigin = sharedpreferences.getString(MY_LAT_ORIGIN, null);
-            String longitudeOrigin = sharedpreferences.getString(MY_LONG_ORIGIN, null);
-            String latitudeDest = sharedpreferences.getString(MY_LAT_DEST, null);
-            String longitudeDest = sharedpreferences.getString(MY_LONG_DEST, null);
+        setUpClusterer(mMap);
+    }
 
 
-            // print in logcat
-            System.out.println(" ---> Shared NEW ----> " + " LTO :  " + latitudeOrigin +
-                    " LNGO : " + longitudeOrigin +
-                    "LTD : " + latitudeDest +
-                    "LONGD : " + longitudeDest);
+    //clustered map
 
+    private void setUpClusterer(GoogleMap mMap) {
+        // Position the map.
+
+       // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = new ClusterManager<MyItem>(this, mMap);
+
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap.setOnCameraIdleListener(mClusterManager);
+        mMap.setOnMarkerClickListener(mClusterManager);
+
+
+        // Add cluster items (markers) to the cluster manager.
+        addItems(mMap);
+    }
+
+    private void addItems(GoogleMap mMap) {
+
+        // Set some lat/lng coordinates to start with.
+        String latitudeOrigin = sp.getString(MY_LAT_ORIGIN, "0.00").trim();
+        String longitudeOrigin = sp.getString(MY_LONG_ORIGIN, "0.00").trim();
+        String latitudeDest = sp.getString(MY_LAT_DEST, "0.00").trim();
+        String longitudeDest = sp.getString(MY_LONG_DEST, "0.00").trim();
+
+
+        // print in logcat
+        System.out.println(" ---> Shared NEW ----> " + " LTO :  " + latitudeOrigin +
+                " LNGO : " + longitudeOrigin +
+                "LTD : " + latitudeDest +
+                "LONGD : " + longitudeDest);
+
+
+        double lto = Double.parseDouble(latitudeOrigin);
+        double longo = Double.parseDouble(longitudeOrigin);
+        double ltd = Double.parseDouble(latitudeDest);
+        double longd = Double.parseDouble(longitudeDest);
+
+
+        HashMap<Double, Double> hm = new HashMap<>();
+
+        hm.put(lto, longo);
+        hm.put(ltd, longd);
+
+        try {
+            /*Polyline polyline = mMap.addPolyline(new PolylineOptions()
+                    .clickable(true)
+                    .add(
+                            new LatLng(lto, longo),
+                            new LatLng(ltd, longd)
+
+                    ));
+
+            stylePolyline(polyline);*/
+
+
+            for (Map.Entry m : hm.entrySet())
+
+            {
+                System.out.println(m.getKey() + " " + m.getValue());
+                MyItem offsetItem = new MyItem(Double.parseDouble(m.getKey().toString()), Double.parseDouble(m.getValue().toString()));
+                mClusterManager.addItem(offsetItem);
+
+
+            }
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(new LatLng(lto, longo));
+            builder.include(new LatLng(ltd, longd));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 48));
+        }
+        catch (Exception k){
 
         }
+
     }
+
+
+    private void stylePolyline(Polyline polyline) {
+        String type = "";
+        // Get the data object stored with the polyline.
+        if (polyline.getTag() != null) {
+            type = polyline.getTag().toString();
+        }
+
+        switch (type) {
+            // If no type is given, allow the API to use the default.
+            case "A":
+                // Use a custom bitmap as the cap at the start of the line.
+                polyline.setStartCap(
+                        new CustomCap(
+                                BitmapDescriptorFactory.fromResource(R.drawable.flight_arrow), 10));
+                break;
+            case "B":
+                // Use a round cap at the start of the line.
+                polyline.setStartCap(new RoundCap());
+                break;
+        }
+
+        polyline.setEndCap(new RoundCap());
+        polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
+        polyline.setColor(Color.parseColor("#257c38"));
+        polyline.setJointType(JointType.ROUND);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -110,6 +224,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
 
     private void getOriginLocation(String airportCode) {
         String token = mytokenFromSharedPref;
@@ -130,8 +264,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         try {
                             if (result.toString() != null) {
-                                DataProvider dp = new DataProvider(MapsActivity.this);
-                                dp.getAirportcodes();
+
                                 parseOriginJson(result.toString());
                                 System.out.println(" REAL RESULT :  " + result.toString());
                                 pd.dismiss();
@@ -152,7 +285,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void getDestinationLocation(String airportCode) {
-        //https://api.lufthansa.com/v1/references/airports/?limit=100&offset=0&LHoperated=1&access_token=8yvqxdkbjpw74dzrujtnf9c3
         String token = mytokenFromSharedPref;
         String Limit = "100";
         final String Url = "/v1/references/airports/" + airportCode + "/?limit=" + Limit + "&offset=0&LHoperated=1&access_token=" + token;
@@ -171,8 +303,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                         try {
                             if (result.toString() != null) {
-                                DataProvider dp = new DataProvider(MapsActivity.this);
-                                dp.getAirportcodes();
+
                                 parseDestinationJson(result.toString());
                                 //System.out.println(" REAL RESULT :  " + result.toString());
                                 pd.dismiss();
@@ -190,8 +321,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                 });
 
-    }
 
+    }
 
     private void parseOriginJson(String result) {
         try {
@@ -220,15 +351,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .getJSONObject("Coordinate")
                             .getString("Longitude");
 
-                    DataProvider dp = new DataProvider(MapsActivity.this);
-                   /* dp.UpdateLatitudeOrigin();
-                    dp.UpdateLongitudeOrigin();
-                    dp.storeOriginLatitude(Latitude);
-                    dp.storeOriginLongitude(Longitude);*/
 
-                    sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+                    sp = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
 
-                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    SharedPreferences.Editor editor = sp.edit();
+                    /*editor.remove(MY_LAT_ORIGIN);
+                    editor.remove(MY_LONG_ORIGIN);*/
                     editor.putString(MY_LAT_ORIGIN, Latitude);
                     editor.putString(MY_LONG_ORIGIN, Longitude);
                     editor.commit();
@@ -285,16 +413,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .getString("Longitude");
 
 
-                    DataProvider dp = new DataProvider(MapsActivity.this);
-                   /* dp.UpdateLatitudeDest();
-                    dp.UpdateLongitudeDest();
-                    dp.storeDestLatitude(Latitude);
-                    dp.storeDestLongitude(Longitude);
-*/
                     //Initializing Shared Prefeerences
-                    sharedpreferences = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
+                    sp = getSharedPreferences(GOOGLE_MAPS_PREF, Context.MODE_PRIVATE);
 
-                    SharedPreferences.Editor editor = sharedpreferences.edit();
+                    SharedPreferences.Editor editor = sp.edit();
+                    /*editor.remove(MY_LAT_DEST);
+                    editor.remove(MY_LONG_DEST);*/
                     editor.putString(MY_LAT_DEST, Latitude);
                     editor.putString(MY_LONG_DEST, Longitude);
                     editor.commit();
@@ -333,65 +457,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
 
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        mMap = googleMap;
-
-
-        // DataProvider dp = new DataProvider(MapsActivity.this);
-
-
-        String latitudeOrigin = sharedpreferences.getString(MY_LAT_ORIGIN, "0.00").trim();
-        String longitudeOrigin = sharedpreferences.getString(MY_LONG_ORIGIN, "0.00").trim();
-        String latitudeDest = sharedpreferences.getString(MY_LAT_DEST, "0.00").trim();
-        String longitudeDest = sharedpreferences.getString(MY_LONG_DEST, "0.00").trim();
-
-
-        double lto = Double.parseDouble(latitudeOrigin);
-        double longo = Double.parseDouble(longitudeOrigin);
-        double ltd = Double.parseDouble(latitudeDest);
-        double longd = Double.parseDouble(longitudeDest);
-
-        Polyline polyline = googleMap.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .add(
-                        new LatLng(lto, longo),
-                        new LatLng(ltd, longd)
-                ));
-        // stylePolyline(polyline);
-
-
-        // Add a marker and move the camera Origin
-        LatLng origin = new LatLng(lto, longo);
-
-        mMap.addMarker(new MarkerOptions()
-                .position(origin)
-                .title("ORIGIN : " + from)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport_mark_one)
-                ));
-        // mMap.moveCamera(CameraUpdateFactory.newLatLng(origin));
-
-        // Add a marker and move the camera Destination
-        LatLng destination = new LatLng(ltd, longd);
-        mMap.addMarker(new MarkerOptions()
-                .position(destination)
-                .title("DESTINATION : " + to)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.airport_mark_one)
-                ));
-        // mMap.moveCamera(CameraUpdateFactory.newLatLng(destination));
-        createDashedPolyLine(mMap, origin, destination);
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        builder.include(new LatLng(lto, longo));
-        builder.include(new LatLng(ltd, longd));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 48));
-
-    }
-
-
     //Dashed polyline
-
     public static void createDashedPolyLine(GoogleMap map, LatLng latLngOrig, LatLng latLngDest) {
         double difLat = latLngDest.latitude - latLngOrig.latitude;
         double difLng = latLngDest.longitude - latLngOrig.longitude;
@@ -424,31 +490,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void stylePolyline(Polyline polyline) {
-        String type = "";
-        // Get the data object stored with the polyline.
-        if (polyline.getTag() != null) {
-            type = polyline.getTag().toString();
-        }
-
-        switch (type) {
-            // If no type is given, allow the API to use the default.
-            case "A":
-                // Use a custom bitmap as the cap at the start of the line.
-                polyline.setStartCap(
-                        new CustomCap(
-                                BitmapDescriptorFactory.fromResource(R.drawable.flight_arrow), 10));
-                break;
-            case "B":
-                // Use a round cap at the start of the line.
-                polyline.setStartCap(new RoundCap());
-                break;
-        }
-
-        polyline.setEndCap(new RoundCap());
-        polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
-        polyline.setColor(Color.parseColor("#257c38"));
-        polyline.setJointType(JointType.ROUND);
-    }
 
 }

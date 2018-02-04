@@ -44,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     String mytokenFromSharedPref = "";
     private Spinner from, to;
     private EditText date_edt;
+    public static final String SEND_ORIGIN="origin";
+    public static final String SEND_DESTINATION="destination";
+    public static final String SEND_DATEFLIGHT="dateflights";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,11 +121,9 @@ public class MainActivity extends AppCompatActivity {
 
         System.out.print("Origin " + GetOrigin + " Dest : " + GetDestination);
         Intent i = new Intent(MainActivity.this, FlightListActivity.class);
-        i.putExtra("origin", GetOrigin);
-        i.putExtra("destination", GetDestination);
-        i.putExtra("dateflights", FlightsDate);
-
-
+        i.putExtra(SEND_DATEFLIGHT,FlightsDate);
+        i.putExtra(SEND_ORIGIN, GetOrigin);
+        i.putExtra(SEND_DESTINATION, GetDestination);
         startActivity(i);
     }
 

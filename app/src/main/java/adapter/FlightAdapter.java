@@ -74,10 +74,10 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightHold
 
         System.out.println("Adapter ---> : DES ONE  " + ArrivalAirport.trim() + " DEST TWO " + CompareDest);
 
-
         holder.root.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Intent i = new Intent(FlightAdapter.this.context, MapsActivity.class);
                 i.putExtra("fromLocation", DepartureAirport);
                 i.putExtra("toLocation", ArrivalAirport);
@@ -111,7 +111,6 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightHold
             depature_txt = (TextView) itemView.findViewById(R.id.departure_txt);
             arrival_txt = (TextView) itemView.findViewById(R.id.arrival_txt);
             view_setColor = (View) itemView.findViewById(R.id.view_setColor);
-
 
         }
     }

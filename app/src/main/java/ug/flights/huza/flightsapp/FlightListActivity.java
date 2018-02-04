@@ -55,20 +55,20 @@ public class FlightListActivity extends AppCompatActivity {
         i = getIntent();
 
         if (i != null) {
-            ORIGIN = i.getStringExtra("origin");
-            DESTINATION = i.getStringExtra("destination");
+            ORIGIN = i.getStringExtra(MainActivity.SEND_ORIGIN);
+            DESTINATION = i.getStringExtra(MainActivity.SEND_DESTINATION);
             origin_txt = (TextView) findViewById(R.id.origin_txt_detail);
             dest_txt = (TextView) findViewById(R.id.dest_txt_detail);
 
-            //set text.
+            //set text to Textview header
             origin_txt.setText(ORIGIN);
             dest_txt.setText(DESTINATION);
 
-            DATEFLIGHTS = i.getStringExtra("dateflights");
+            DATEFLIGHTS = i.getStringExtra(MainActivity.SEND_DATEFLIGHT);
             fetchFlightsOnline(ORIGIN.substring(0, 3), DESTINATION.substring(0, 3), DATEFLIGHTS, CHECKFLIGHTS);
         }
 
-        System.out.print("Check BOX : " + CHECKFLIGHTS);
+        System.out.println("DEST  : " + DESTINATION.substring(0,3)+" ORIGIN : "+ ORIGIN.substring(0,3));
 
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
@@ -115,7 +115,6 @@ public class FlightListActivity extends AppCompatActivity {
                                     .getJSONObject("ProcessingErrors")
                                     .has("ProcessingError");
                             boolean hasData = obj.has("ScheduleResource");
-
 
                             if (res != null) {
 
